@@ -1,0 +1,59 @@
+name: telegram message
+on:
+  pull_request:
+    types: [opened, reopened]
+  issues:
+    types: [opened, reopened]
+  pull_request_review_comment:
+    types: [created]
+  issue_comment:
+    types: [created]
+jobs:
+  sender:
+    name: sender
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: pull request send custom message with args
+        uses: appleboy/telegram-action@master
+        if: github.event_name == 'pull_request'
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          format: html
+          args: |+
+                <b><a href=\"${{ github.event.sender.html_url }}\">${{ github.actor }}</a></b> відкрив Pull Request <a href=\"${{ github.event.pull_request.html_url }}\">${{ github.event.pull_request.title }}</a>.
+                
+      - name: issues send custom message with args
+        uses: appleboy/telegram-action@master
+        if: github.event_name == 'issues'
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          format: html
+          args: |+
+                <b><a href=\"${{ github.event.sender.html_url }}\">${{ github.actor }}</a></b> відкрив Issue <a href=\"${{ github.event.issue.html_url }}\">${{ github.event.issue.title }}</a>.
+                
+      - name: pull request review comment send custom message with args
+        uses: appleboy/telegram-action@master
+        if: github.event_name == 'pull_request_review_comment'
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          format: html
+          args: |+
+                <b><a href=\"${{ github.event.sender.html_url }}\">${{ github.actor }}</a></b> прокоментував <a href=\"${{ github.event.comment.html_url }}\">${{ github.event.pull_request.title }}</a>:
+                
+                <i>${{ github.event.comment.body }}</i>
+                
+      - name: issue comment send custom message with args
+        uses: appleboy/telegram-action@master
+        if: github.event_name == 'issue_comment'
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          format: html
+          args: |+
+                <b><a href=\"${{ github.event.sender.html_url }}\">${{ github.actor }}</a></b> прокоментував <a href=\"${{ github.event.comment.html_url }}\">${{ github.event.issue.title }}</a>:
+                
+                <i>${{ github.event.comment.body }}</i>
